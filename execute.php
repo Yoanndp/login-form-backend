@@ -1,6 +1,8 @@
 <?php
 error_reporting(E_ERROR);
 
+$login = new Login();
+
 switch($_GET["action"]){
     case "registerUser":
         $r = $login->registerUser($_GET["userName"], $_GET["password"], $_GET["repassword"], $_GET["registerKey"]);
