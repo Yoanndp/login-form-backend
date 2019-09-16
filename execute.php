@@ -1,5 +1,8 @@
 <?php
-error_reporting(E_ERROR);
+/* DEBUG THINGS - Remove it when you're in production env
+error_reporting(E_ALL);
+ini_set("display_errors", true);
+*/
 
 $login = new Login();
 
@@ -53,8 +56,9 @@ class Login{
         if(empty($username) ||empty($password) || empty($registerKey) || empty($repassword)) return "ERROR:MISSING_PARAMETERS";
         if(strlen($username)>20 || strlen($username) < 3) return "ERROR:USERNAME_TOO_SHORT";
         if(strlen($password) < 3) return "ERROR:PASSWORD_TOO_SHORT";
-        if(!$this->AssignKey($username, $registerKey)) return "ERROR:INVALID_KEY"; //FUUUUCK
         if($this->userExist($username)) return "ERROR:USERNAME_TAKEN";        
+        //Better to assing the key AFTER checking if the username is already taken
+        if(!$this->AssignKey($username, $registerKey)) return "ERROR:INVALID_KEY";
         if($password != $repassword) return "ERROR:PASSWORDS_NOT_MATCH";        
         $this->query("INSERT INTO accounts(userName, password) VALUES (?, ?)", array($username, $this->bcrypt($password)));
         return "OK:DONE";
@@ -96,8 +100,8 @@ class Login{
     
     private function AssignKey($username, $key){
         if(!$this->keyExist($key)) return false;
-        $this->query("UPDATE registrationKeys SET userName = ? WHERE registerKey COLLATE latin1_bin LIKE ?", array($username, $key));
-        return true;
+        //Tt's more appropriate to check the query result (bool) than to constantly return true
+        return $this->query("UPDATE registrationKeys SET userName = ? WHERE registerKey COLLATE latin1_bin LIKE ?", array($username, $key));
     }
 ////REGISTER KEY FUNCTION [<-]
 }
