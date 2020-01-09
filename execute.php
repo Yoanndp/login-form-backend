@@ -39,7 +39,7 @@ class Login{
     }
 
     private function userExist($username){
-        return $this->query("SELECT accountID FROM accounts WHERE userName COLLATE latin1_bin LIKE ?", array($username), true)["accountID"];
+        return $this->query("SELECT accountID FROM accounts WHERE BINARY userName = ?", array($username), true)["accountID"];
     }
 
     private function isBanned($username){
@@ -47,7 +47,7 @@ class Login{
     }
 
     private function getAccountID($username){
-        return $this->query("SELECT accountID FROM accounts WHERE userName COLLATE latin1_bin LIKE ?", array($username), true)["accountID"];
+        return $this->query("SELECT accountID FROM accounts WHERE BINARY userName = ?", array($username), true)["accountID"];
     }
 ////LOCAL FUNCTION [<-]
 
@@ -68,7 +68,7 @@ class Login{
         if(empty($username) || empty($password)) return "ERROR:MISSING_PARAMETERS";
         if(!$this->userExist($username)) return "ERROR:INVALID_CREDENTIALS";
         if($this->isBanned($username)) return "ERROR:USER_BANNED";
-        $pass = $this->query("SELECT password FROM accounts WHERE userName COLLATE latin1_bin LIKE ?", array($username), true);
+        $pass = $this->query("SELECT password FROM accounts WHERE BINARY userName = ?", array($username), true);
         return password_verify($password, $pass["password"]) ? "OK:LOGGED_IN" : "ERROR:INVALID_CREDENTIALS";
     }
 
@@ -95,13 +95,13 @@ class Login{
     }
 
     private function keyExist($key){
-        return $this->query("SELECT registerKey FROM registrationKeys WHERE registerKey COLLATE latin1_bin LIKE ? AND userName IS NULL", array($key), true)["registerKey"];
+        return $this->query("SELECT registerKey FROM registrationKeys WHERE BINARY registerKey = ? AND userName IS NULL", array($key), true)["registerKey"];
     }
     
     private function AssignKey($username, $key){
         if(!$this->keyExist($key)) return false;
         //Tt's more appropriate to check the query result (bool) than to constantly return true
-        return $this->query("UPDATE registrationKeys SET userName = ? WHERE registerKey COLLATE latin1_bin LIKE ?", array($username, $key));
+        return $this->query("UPDATE registrationKeys SET userName = ? WHERE BINARY registerKey = ?", array($username, $key));
     }
 ////REGISTER KEY FUNCTION [<-]
 }
